@@ -44,7 +44,10 @@ Enter the number you'd like to use. [1 or 2]
                 print(similar_notes)
                 break
             elif input_option == "2" :
-                #description_perfume()
+                #Description 클래스의 인스턴스 생성 및 메서드 호출
+                description_instance = Description()
+                similar_description = description_instance.description_perfume()
+                print(similar_description)
                 break
             else :
                 print("잘못된 입력입니다. 다시 입력하세요.")
