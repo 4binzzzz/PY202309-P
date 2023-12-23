@@ -1,21 +1,15 @@
 #user_input == 2
 from keras.preprocessing.text import text_to_word_sequence
-from middle import call_main_menu
 from difflib import SequenceMatcher
+import wishlist
 
 
-#main.py의 메인 메뉴 호출을 위한 함수
-def return_to_menu():
-    call_main_menu()
 
 class Notes:
     import pandas as pd
     from keras.preprocessing.text import text_to_word_sequence
-    from middle import call_main_menu
     
-    #main.py의 메인 메뉴 호출을 위한 함수
-    def return_to_menu():
-        call_main_menu()
+    
 
     # 데이터 불러오기
     file_path = 'data/perfume_data_new.csv'
@@ -45,12 +39,12 @@ class Notes:
 
     def notes_perfume(self):
         notes = []
-        notes_input = input("단어 사이에 ,을 넣어 Notes를 입력하세요. : ")
+        notes_input = input("Please enter Notes, separating words with a comma. : ")
         notes.append(notes_input)
         while True:
-            more_notes = input("더 입력하시겠어요? [y/n]")
+            more_notes = input("Would you like to enter more? [y/n]")
             if more_notes == 'y':
-                notes_input = input("단어 사이에 ,을 넣어 Notes를 입력하세요. : ")
+                notes_input = input("Please enter Notes, separating words with a comma. : ")
                 notes.append(notes_input)
                 continue
             elif more_notes == "n":
@@ -60,34 +54,46 @@ class Notes:
                 user_notes_sequence = Notes.text_to_word_sequence(all_notes)
                 #유사한 향수 상위 1개 찾아서 출력
                 most_similar = self.most_similar_notes(user_notes_sequence, self.perfume_data, 1)
-                print("가장 유사한 향수:", most_similar[0])
+                print("Most similar perfume : ", most_similar[0])
 
                 more_notes = input("""
     Enter the number you want
     1. Save to Wishlist
     2. More recommendation
-    3. Return to menu
+    3. Exiting the program
     """)
                 if more_notes == "1" :
-                    pass #wishlist.py의 위시리스트 관련 모듈 불러오기
+                    wishlist_data = wishlist.load_wishlist_from_file()
+                    wishlist.add_to_wishlist(wishlist_data, most_similar[0] )
+                    wishlist.save_wishlist_to_file(wishlist_data)
+                    print(f"The perfume {most_similar[0]} has been added to the wishlist.")
+                    break
                 elif more_notes == "2" :
                     additional_similar = self.most_similar_notes(user_notes_sequence, self.perfume_data, 5)
-                    print("추가 추천 향수:", additional_similar[1:])  # 첫 번째 추천을 제외하고 출력
+                    selected_similar_perfumes = additional_similar[1:]
+                    print("Additional recommended perfumes : ", selected_similar_perfumes)  # 첫 번째 추천을 제외하고 출력
                     notes_more_input = input("""
     Enter the number you want
     1. Save to Wishlist
-    2. Return to menu
+    2. Exiting the program
     """)
                     if notes_more_input == "1" :
-                        pass #wishlist.py의 위시리스트 관련 모듈 불러오기
-                    elif notes_more_input == "2" :
-                        return_to_menu()
+                        wishlist_data = wishlist.load_wishlist_from_file()
+                        for perfume in selected_similar_perfumes:
+                            wishlist.add_to_wishlist(wishlist_data, perfume)
+                        wishlist.save_wishlist_to_file(wishlist_data)
+                        print(f"The perfume {selected_similar_perfumes} has been added to the wishlist.")
                         break
-                elif more_notes == "3" : #초기 메뉴로 돌아가기
-                    return_to_menu()
+                    elif notes_more_input == "2" :
+                        print("Exiting the program.")
+                        break
+                        
+                elif more_notes == "3" : #프로그램 종료
+                    print("Exiting the program.")
                     break
+                    
             else:
-                print("잘못된 입력입니다. 다시 입력하세요.")
+                print("Invalid input. Please try again. : ")
 
 
 
@@ -97,11 +103,7 @@ class Description:
     from difflib import SequenceMatcher
     import pandas as pd
     from keras.preprocessing.text import text_to_word_sequence
-    from middle import call_main_menu
-
-    #main.py의 메인 메뉴 호출을 위한 함수
-    def return_to_menu() :
-        call_main_menu()
+    
 
     #데이터 불러오기
     file_path = 'data/perfume_data_new.csv'
@@ -130,12 +132,12 @@ class Description:
     #사용자에게 'description_input' 입력받기
     def description_perfume(self):
       description = []
-      description_input = input("향수에 대한 설명을 입력하세요. 단어 사이 공백 필수 : ")
+      description_input = input("Please enter the Description, separating words with spaces. : ")
       description.append(description_input)
       while True :
-        more_description = input("더 입력하시겠어요? [y/n]")
+        more_description = input("Would you like to enter more? [y/n]")
         if more_description == 'y' :
-            description_input = input("단어 사이를 띄어쓰기로 구분하여 Description을 입력하세요. : ")
+            description_input = input("Please enter the Description, separating words with spaces. : ")
             description.append(description_input)
             continue
         elif more_description == "n" :
@@ -144,33 +146,42 @@ class Description:
             most_similar_des = self.most_similar_description(all_description, self.perfume_data, 1)
             #유사한 향수 상위 1개 찾아서 출력
             #print("가장 유사한 향수:", most_similar_des[0])
-            print("가장 유사한 향수:", most_similar_des['Name'].iloc[0])  #'Name' 컬럼의 첫 번째 값 출력
+            print("Most similar perfume : ", most_similar_des['Name'].iloc[0])  #'Name' 컬럼의 첫 번째 값 출력
 
 
             more_description = input("""
     Enter the number you want
     1. Save to Wishlist
     2. More recommendation
-    3. Return to menu
+    3. Exiting the program
     """)
             if more_description == "1" :
-                pass #wishlist.py의 위시리스트 관련 모듈 불러오기
+                wishlist_data = wishlist.load_wishlist_from_file()
+                wishlist.add_to_wishlist(wishlist_data, most_similar_des['Name'].iloc[0] )
+                wishlist.save_wishlist_to_file(wishlist_data)
+                print(f"The perfume {most_similar_des['Name'].iloc[0]} has been added to the wishlist.")
+                break
             elif more_description == "2" :
                 additional_similar = self.most_similar_description(all_description, self.perfume_data, 5)
-                #print("추가 추천 향수:", additional_similar[1:])  #첫 번째 추천을 제외하고 출력
-                print("추가 추천 향수:", additional_similar['Name'][1:].tolist())
+                selected_similar_perfumes2 = additional_similar['Name'][1:].tolist()
+                print("Additional recommended perfumes : ", selected_similar_perfumes2)
                 description_more_input = input("""
     Enter the number you want
     1. Save to Wishlist
-    2. Return to menu
+    2. Exiting the program
     """)
                 if description_more_input == "1" :
-                    pass #wishlist.py의 위시리스트 관련 모듈 불러오기
-                elif description_more_input == "2" :
-                    return_to_menu()
+                    wishlist_data = wishlist.load_wishlist_from_file()
+                    for perfume in selected_similar_perfumes2 :
+                            wishlist.add_to_wishlist(wishlist_data, perfume)
+                    wishlist.save_wishlist_to_file(wishlist_data)
+                    print(f"The perfume {selected_similar_perfumes2} has been added to the wishlist.")
                     break
-            elif more_description == "3" : #초기 메뉴로 돌아가기
-                return_to_menu()
+                elif description_more_input == "2" :
+                    print("Exiting the program.")
+                    break
+            elif more_description == "3" : #프로그램 종료
+                print("Exiting the program.")
                 break
         else:
-          print("잘못된 입력입니다. 다시 입력하세요.")
+          print("Invalid input. Please try again. : ")
